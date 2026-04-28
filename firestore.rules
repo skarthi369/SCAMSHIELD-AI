@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidScan(data) {
+      return data.keys().hasAll(['userId', 'message', 'decision', 'confidence', 'risk', 'reason', 'action', 'createdAt']) &&
+             data.keys().size() == 8 &&
+             data.userId is string &&
+             data.message is string && data.message.size() <= 10000 &&
+             data.decision in ['Scam', 'Safe', 'Suspicious'] &&
+             data.confidence is number && data.confidence >= 0 && data.confidence <= 100 &&
+             data.risk in ['High', 'Medium', 'Low'] &&
+             data.reason is string && data.reason.size() <= 2000 &&
+             data.action is string && data.action.size() <= 1000 &&
+             data.createdAt == request.time;
+    }
+
+    match /scans/{scanId} {
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && 
+                    request.resource.data.userId == request.auth.uid &&
+                    isValidScan(request.resource.data);
+      allow update, delete: if false; // Scans are immutable history
+    }
+  }
+}

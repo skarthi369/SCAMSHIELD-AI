@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "scan": {
+      "title": "Scan Result",
+      "description": "A record of a scam detection scan.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of the user who performed the scan" },
+        "message": { "type": "string", "description": "The raw message analyzed" },
+        "decision": { "type": "string", "enum": ["Scam", "Safe", "Suspicious"] },
+        "confidence": { "type": "number" },
+        "risk": { "type": "string", "enum": ["High", "Medium", "Low"] },
+        "reason": { "type": "string" },
+        "action": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "message", "decision", "confidence", "risk", "reason", "action", "createdAt"]
+    }
+  },
+  "firestore": {
+    "scans/{scanId}": {
+      "schema": "scan",
+      "description": "User scan history"
+    }
+  }
+}
