@@ -1,4 +1,4 @@
-
+Digital users are increasingly exposed to phishing messages, fake links, and online scams through SMS, emails, and messaging platforms. Existing security tools fail to detect new and evolving scam patterns in real time, leaving users vulnerable to financial and data loss. There is a need for an intelligent, real-time system that can analyze message
 
 ## Run Locally
 
